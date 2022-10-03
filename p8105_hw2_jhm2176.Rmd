@@ -1,0 +1,29 @@
+---
+title: "Homework 2"
+author: "Jenesis Merriman"
+date: "October 5, 2022"
+output: github_document
+---
+
+```{r setup}
+
+```
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
