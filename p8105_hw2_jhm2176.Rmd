@@ -122,12 +122,14 @@ pols_month = read_csv("data/fivethirtyeight_datasets/pols-month.csv") %>%
   separate(col = mon, into = c("year", "month", "day"), sep = "-") %>%
   mutate(month = month.name[as.numeric(month)]) %>%
   select(-day)
-  
+
+
   pivot_longer( #cant figure out how to pivot longer properly
     cols = starts_with("prez"),
     names_to = "president",
     names_prefix = "prez",
     values_to = "president") %>%
+    
 
 ```
 
@@ -137,9 +139,9 @@ Second, I will clean the data in snp.csv using a similar process to that above. 
 snp = read_csv("data/fivethirtyeight_datasets/snp.csv") %>%
   janitor::clean_names() %>%
   separate(col = date, into = c("month", "day", "year"), sep = "/") %>%
-  mutate(month = month.name[as.numeric(month)], year = year + 2000) %>%
-    select(-day)
-
+  mutate(month = month.name[as.numeric(month)], year = ifelse(as.numeric(year) > 22, as.numeric(year) +
+                                                                1900, as.numeric(year) + 2000)) %>%
+  select(-day)
 ```
 
 Third, I will tidy the unemployment data so that it can be merged with the previous datasets. This process will involve switching from “wide” to “long” format; ensuring that key variables have the same name; and ensuring that key variables take the same values.
