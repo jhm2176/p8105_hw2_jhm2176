@@ -14,7 +14,7 @@ library(readxl)
 
 The below code uses `readr` and `janitor::clean_names()` to import and clean the data. It also uses `select` to retain line, station, name, station latitude / longitude, routes served, entry, vending, entrance type, and ADA compliance and and `mutate` to convert the entry variable from character (YES vs NO) to a logical variable.
 
-```{r read and clean}
+```{r}
 transit_data = read_csv(
   file = "./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv",
   col_types = cols(Route8 = "c", Route9 = "c", Route10 = "c", Route11 = "c")) %>%
@@ -29,31 +29,62 @@ transit_data = read_csv(
 
 Answer the following questions using these data:
 
-How many distinct stations are there? Note that stations are identified both by name and by line (e.g. 125th St 8th Avenue; 125st Broadway; 125st Lenox); the distinct function may be useful here.
+**How many distinct stations are there?**
 
 ```{r}
-
+transit_data %>% 
+  select(station_name, line) %>% 
+  distinct
 ```
+*There are 465 distinct stations in the NYC transit system, according to our dataset.*
 
-How many stations are ADA compliant?
+**How many stations are ADA compliant?**
 
 ```{r}
-
+transit_data %>% 
+  filter(ada == TRUE) %>% 
+  select(station_name, line) %>% 
+  distinct
 ```
+*There are 84 ADA compliant stations in the NYC transit system, according to our dataset.*
 
-What proportion of station entrances / exits without vending allow entrance?
+**What proportion of station entrances / exits without vending allow entrance?**
 
 ```{r}
-
+transit_data %>% 
+  filter(vending == "NO") %>% 
+  pull(entry) %>% 
+  mean
 ```
+*The proportion of station entrances / exits without vending that allow entrance is 0.377.*
 
 Reformat data so that route number and route name are distinct variables. How many distinct stations serve the A train? Of the stations that serve the A train, how many are ADA compliant?
 
 ```{r}
+transit_data %>%
+  pivot_longer(
+    route1:route11,
+    names_to = "route_number", 
+    names_prefix = "route",
+    values_to = "route_name") %>%
+    filter(route_name == "A") %>%
+  select(station_name, line) %>% 
+  distinct
 
+transit_data %>%
+  pivot_longer(
+    route1:route11,
+    names_to = "route_number", 
+    names_prefix = "route",
+    values_to = "route_name") %>%
+  filter(route_name == "A", ada == TRUE) %>% 
+  select(station_name, line) %>% 
+  distinct
 ```
+*60 distinct stations serve the A train. Of these stations, 17 are ADA compliant.*
 
 
+##Problem 2
 ```{r}
 
 ```
