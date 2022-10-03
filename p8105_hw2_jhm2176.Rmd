@@ -7,6 +7,7 @@ output: github_document
 
 ```{r setup}
 library(tidyverse)
+library(readxl)
 ```
 
 ## Problem 1
@@ -14,27 +15,50 @@ library(tidyverse)
 Read and clean the data:
 
 ```{r read and clean}
-transit_data = read_csv(file = "./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>%
+transit_data = read_csv(
+  file = "./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv",
+  col_types = cols(Route8 = "c", Route9 = "c", Route10 = "c", Route11 = "c")) %>%
   janitor::clean_names()
 ```
 
 Retain line, station, name, station latitude / longitude, routes served, entry, vending, entrance type, and ADA compliance. Convert the entry variable from character (YES vs NO) to a logical variable (the ifelse or recode function may be useful):
 
 ```{r select and recode}
-transit_data_selected = select(transit_data, line, station_name, station_latitude, station_longitude, route1:route11, entry, vending, entrance_type, ada)
-
-mutate(transit_data_selected, entry = recode(entry, "YES" = 1, "NO" = 0))
+transit_data_selected = 
+  select(transit_data, line, station_name, station_latitude,
+         station_longitude, route1:route11, entry, vending,
+         entrance_type, ada)  %>%
+  mutate(entry = recode(entry, "YES" = TRUE, "NO" = FALSE))
 ```
 
-
-Write a short paragraph about this dataset – explain briefly what variables the dataset contains, describe your data cleaning steps so far, and give the dimension (rows x columns) of the resulting dataset. Are these data tidy?
+*This dataset focuses on NYC transit data and includes the variables line, station, name, station latitude, station longitude, routes served (1-11), entry, vending, entrance type, and ADA compliance. In order to clean the data, I started with data import, updated variable types, cleaned variable names, and selected the relevent columns. I then updated `entry` from `yes` / `no` to a logical variable. The resulting data set is 1868 rows x 19 columns. These data are not "tidy" in its current state. To further tidy our data, we would need to convert `route` variables from wide to long format.*
 
 Answer the following questions using these data:
 
 How many distinct stations are there? Note that stations are identified both by name and by line (e.g. 125th St 8th Avenue; 125st Broadway; 125st Lenox); the distinct function may be useful here.
+
+```{r}
+
+```
+
 How many stations are ADA compliant?
+
+```{r}
+
+```
+
 What proportion of station entrances / exits without vending allow entrance?
+
+```{r}
+
+```
+
 Reformat data so that route number and route name are distinct variables. How many distinct stations serve the A train? Of the stations that serve the A train, how many are ADA compliant?
+
+```{r}
+
+```
+
 
 ```{r}
 
