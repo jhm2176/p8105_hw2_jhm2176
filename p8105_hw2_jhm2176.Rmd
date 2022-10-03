@@ -85,14 +85,35 @@ transit_data %>%
 
 ##Problem 2
 
-Read and clean the Mr. Trash Wheel sheet:
+Read and clean the Mr. Trash Wheel sheet, adding the variable 'sheet' to keep track of data for future combining:
 ```{r}
-mr_trash = read_excel("data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx", 
-    sheet = "Mr. Trash Wheel", range = "A2:N535") %>% 
+mr_trash = read_excel(
+  "data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx", sheet = "Mr. Trash Wheel", range = 
+    "A2:N535") %>% 
   janitor::clean_names() %>%
-  mutate(sports_balls = as.integer(sports_balls)) %>%
-           drop_na()
+  mutate(sports_balls = as.integer(sports_balls), dumpster = as.double(dumpster), sheet =
+           "mister") %>%
+  drop_na()
 ```
+
+Import, clean, and organize the data for Professor Trash Wheel, adding the variable 'sheet' to keep track of data for future combining::
+
+```{r}
+prof_trash = read_excel("data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx", 
+    sheet = "Professor Trash Wheel", range = "A2:N117") %>% 
+  janitor::clean_names() %>%
+  mutate(sports_balls = as.integer(sports_balls), sheet = "professor") %>%
+  drop_na()
+```
+
+Combine the Professor Trash Wheel dataset with the Mr. Trash Wheel dataset to produce a single tidy dataset:
+
+```{r}
+trash_tidy = full_join(mr_trash, prof_trash)
+```
+
+Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in the resulting dataset, and give examples of key variables. For available data, what was the total weight of trash collected by Professor Trash Wheel? What was the total number of sports balls collected by Mr. Trash Wheel in 2020?
+
 
 
 ```{r}
