@@ -20,8 +20,10 @@ transit_data = read_csv(file = "./data/NYC_Transit_Subway_Entrance_And_Exit_Data
 
 Retain line, station, name, station latitude / longitude, routes served, entry, vending, entrance type, and ADA compliance. Convert the entry variable from character (YES vs NO) to a logical variable (the ifelse or recode function may be useful):
 
-```{r}
+```{r select and recode}
+transit_data_selected = select(transit_data, line, station_name, station_latitude, station_longitude, route1:route11, entry, vending, entrance_type, ada)
 
+mutate(transit_data_selected, entry = recode(entry, "YES" = 1, "NO" = 0))
 ```
 
 
