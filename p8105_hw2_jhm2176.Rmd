@@ -117,12 +117,28 @@ Write a paragraph about these data; you are encouraged to use inline R. Be sure 
 First, I will clean the data in pols-month.csv. This code will use separate() to break up the variable mon into integer variables year, month, and day; replace month number with month name; create a president variable taking values gop and dem, and remove prez_dem and prez_gop; and remove the day variable.
 
 ```{r}
+pols_month = read_csv("data/fivethirtyeight_datasets/pols-month.csv") %>%
+  janitor::clean_names() %>%
+  separate(col = mon, into = c("year", "month", "day"), sep = "-") %>%
+  mutate(month = month.name[as.numeric(month)]) %>%
+  select(-day)
+  
+  pivot_longer( #cant figure out how to pivot longer properly
+    cols = starts_with("prez"),
+    names_to = "president",
+    names_prefix = "prez",
+    values_to = "president") %>%
 
 ```
 
 Second, I will clean the data in snp.csv using a similar process to that above. For consistency across datasets, I will arrange according to year and month, and organize so that year and month are the leading columns.
 
 ```{r}
+snp = read_csv("data/fivethirtyeight_datasets/snp.csv") %>%
+  janitor::clean_names() %>%
+  separate(col = date, into = c("month", "day", "year"), sep = "/") %>%
+  mutate(month = month.name[as.numeric(month)], year = year + 2000) %>%
+    select(-day)
 
 ```
 
