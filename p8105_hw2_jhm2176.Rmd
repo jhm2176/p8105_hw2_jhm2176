@@ -129,8 +129,6 @@ pols_month = read_csv("data/fivethirtyeight_datasets/pols-month.csv") %>%
     names_to = "president",
     names_prefix = "prez",
     values_to = "president") %>%
-    
-
 ```
 
 Second, I will clean the data in snp.csv using a similar process to that above. For consistency across datasets, I will arrange according to year and month, and organize so that year and month are the leading columns.
@@ -141,13 +139,31 @@ snp = read_csv("data/fivethirtyeight_datasets/snp.csv") %>%
   separate(col = date, into = c("month", "day", "year"), sep = "/") %>%
   mutate(month = month.name[as.numeric(month)], year = ifelse(as.numeric(year) > 22, as.numeric(year) +
                                                                 1900, as.numeric(year) + 2000)) %>%
-  select(-day)
+  select(year, month, close)
 ```
 
 Third, I will tidy the unemployment data so that it can be merged with the previous datasets. This process will involve switching from “wide” to “long” format; ensuring that key variables have the same name; and ensuring that key variables take the same values.
 
 ```{r}
-
+unemployment_tidy = read_csv("data/fivethirtyeight_datasets/unemployment.csv") %>%
+  janitor::clean_names() %>%
+  rename(
+  January = jan,
+  February = feb,
+  March = mar,
+  April = apr,
+  May = may,
+  June = jun,
+  July = jul,
+  August = aug,
+  September = sep,
+  October = oct,
+  November = nov,
+  December = dec) %>%
+  pivot_longer(
+    January:December,
+    names_to = "month", 
+    values_to = "percentage")
 ```
 
 Join the datasets by merging snp into pols, and merging unemployment into the result.
