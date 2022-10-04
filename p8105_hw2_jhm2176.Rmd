@@ -5,12 +5,16 @@ date: "October 5, 2022"
 output: github_document
 ---
 
-```{r setup}
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, message = FALSE)
+```
+
+```{r load_libraries}
 library(tidyverse)
 library(readxl)
 ```
 
-## Problem 1
+### Problem 1
 
 The below code uses `readr` and `janitor::clean_names()` to import and clean the data. It also uses `select` to retain line, station, name, station latitude / longitude, routes served, entry, vending, entrance type, and ADA compliance and and `mutate` to convert the entry variable from character to a logical variable.
 
@@ -81,7 +85,7 @@ transit_data %>%
 ```
 *60 distinct stations serve the A train. Of these stations, 17 are ADA compliant.*
 
-## Problem 2
+### Problem 2
 
 First, I will read and clean the Mr. Trash Wheel sheet, adding the variable 'sheet' to keep track of data for future combining:
 
@@ -90,18 +94,22 @@ mr_trash = read_excel(
   "data/NEW Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel", range = 
     "A2:N549") %>% 
   janitor::clean_names() %>%
-  mutate(sports_balls = as.integer(sports_balls), dumpster = as.double(dumpster), year = as.double(year), class =
-           "mister")
+  mutate(
+  sports_balls = as.integer(sports_balls), 
+  dumpster = as.double(dumpster), 
+  year = as.double(year), 
+  class = "mister")
 
 print(mr_trash)
 ```
 
 Next, using similiar methods as above, I will import, clean, and organize the data for Professor Trash Wheel, adding the variable 'sheet' to keep track of data for future combining:
+
 ```{r}
 prof_trash = read_excel("data/NEW Trash Wheel Collection Data.xlsx", 
-    sheet = "Professor Trash Wheel", range = "A2:M96") %>% 
+  sheet = "Professor Trash Wheel", range = "A2:M96") %>% 
   janitor::clean_names() %>%
-  mutate(class = "professor") %>%
+  mutate(class = "professor")
 
 print(prof_trash)
 ```
@@ -112,7 +120,6 @@ Finally, I will combine the Professor Trash Wheel data with the Mr. Trash Wheel 
 trash_tidy = full_join(mr_trash, prof_trash)
 print(trash_tidy)
 ```
-
 
 ```{r inline, include = FALSE}
 prof_weight_sum = trash_tidy %>% 
@@ -126,9 +133,9 @@ mr_balls_sum = trash_tidy %>%
   sum
 ```
 
-This dataset displays data for dumpsters in Mr. Trash Wheel and Professor Trash Wheel. The resulting dataset includes `r nrow(trash_tidy)` observations and `r ncol(trash_tidy)` columns, including the new column/variable 'class' to distinguish dumpster type. Key variables include date, weight, volume, trash type (plastic bottles:sports balls), and homes powered by the trash once incinerated. According to our data, the total weight of trash collected by Professor Trash Wheel is `r prof_weight_sum` tons. The total number of sports balls collected by Mr. Trash wheel in 2020 is `r mr_balls_sum`.
+**Description:** This dataset displays data for dumpsters in Mr. Trash Wheel and Professor Trash Wheel. The resulting dataset includes `r nrow(trash_tidy)` observations and `r ncol(trash_tidy)` columns, including the new column/variable 'class' to distinguish dumpster type. Key variables include date, weight, volume, trash type (plastic bottles:sports balls), and homes powered by the trash once incinerated. According to our data, the total weight of trash collected by Professor Trash Wheel is `r prof_weight_sum` tons. The total number of sports balls collected by Mr. Trash wheel in 2020 is `r mr_balls_sum`.
 
-## Problem 3
+### Problem 3
 
 First, I will clean the data in pols-month.csv. This code will use `separate()` to break up the variable mon into integer variables year, month, and day; replace month number with month name; create a president variable taking values gop and dem, and remove prez_dem and prez_gop; and remove the day variable.
 
@@ -195,7 +202,7 @@ unemployment_tidy = read_csv("data/fivethirtyeight_datasets/unemployment.csv") %
 print(unemployment_tidy)
 ```
 
-Join the datasets by merging snp into pols, and merging unemployment into the result.
+Finally, I will join the datasets by merging snp into pols, and merging unemployment into the result.
 
 ```{r}
 pols_snp_merge = left_join(pols, snp)
@@ -207,6 +214,4 @@ final_merge = left_join(pols_snp_merge, unemployment_tidy)
 print(final_merge)
 ```
 
-**Write a short paragraph about these datasets. Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).**
-
-This homework includes three FiveThirtyEight datasets: pols-month, snp, and unemployment. The "pols-month" data, tidied and renamed here as "pols," contains `r nrow(pols)` observations of `r ncol(pols)` variables related to the number of national politicians who are democratic or republican at any given time. The "snp” data includes `r nrow(snp)` observations of `r ncol(snp)` variables related to Standard & Poor’s stock market index (S&P). The variable close represents the closing values of the S&P stock index on the associated date. The "unemployment" data, tidied and renamed here as "unemployment_tidy," includes `r nrow(unemployment_tidy)` observations of `r ncol(unemployment_tidy)` variables, displaying the percentage of unemployment for each month in each associated year. The resulting data set "final_merge" merges data from all three datasets using two `left_joins()`. This final dataset contains `r nrow(final_merge)` observations of `r ncol(final_merge)` variables. Key variables include year, month, president, close, and unemployment_percentage.
+**Description:** This homework includes three FiveThirtyEight datasets: pols-month, snp, and unemployment. The "pols-month" data, tidied and renamed here as "pols," contains `r nrow(pols)` observations of `r ncol(pols)` variables related to the number of national politicians who are democratic or republican at any given time. The "snp” data includes `r nrow(snp)` observations of `r ncol(snp)` variables related to Standard & Poor’s stock market index (S&P). The variable close represents the closing values of the S&P stock index on the associated date. The "unemployment" data, tidied and renamed here as "unemployment_tidy," includes `r nrow(unemployment_tidy)` observations of `r ncol(unemployment_tidy)` variables, displaying the percentage of unemployment for each month in each associated year. The resulting data set "final_merge" merges data from all three datasets using two `left_joins()`. This final dataset contains `r nrow(final_merge)` observations of `r ncol(final_merge)` variables. Key variables include year, month, president, close, and unemployment_percentage.
