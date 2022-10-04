@@ -114,15 +114,16 @@ Write a paragraph about these data; you are encouraged to use inline R. Be sure 
 
 ## Problem 3
 
-First, I will clean the data in pols-month.csv. This code will use separate() to break up the variable mon into integer variables year, month, and day; replace month number with month name; create a president variable taking values gop and dem, and remove prez_dem and prez_gop; and remove the day variable.
+First, I will clean the data in pols-month.csv. This code will use `separate()` to break up the variable mon into integer variables year, month, and day; replace month number with month name; create a president variable taking values gop and dem, and remove prez_dem and prez_gop; and remove the day variable.
 
 ```{r}
-pols_month = read_csv("data/fivethirtyeight_datasets/pols-month.csv") %>%
+pols = read_csv("data/fivethirtyeight_datasets/pols-month.csv") %>%
   janitor::clean_names() %>%
   separate(col = mon, into = c("year", "month", "day"), sep = "-") %>%
   select(-day) %>%
   mutate(
     month = month.name[as.numeric(month)], 
+    year = as.numeric(year),
     prez_dem = recode(prez_dem, `1` = "dem", `0` = "gop"), 
     prez_gop = recode(prez_gop, `1` = "gop", `0` = "dem")) %>%
   pivot_longer(
@@ -131,9 +132,8 @@ pols_month = read_csv("data/fivethirtyeight_datasets/pols-month.csv") %>%
     values_to = "president") %>%
   distinct()
 
-view(pols_month)
+print(pols)
 ```
-
 
 Second, I will clean the data in snp.csv using a similar process to that above. For consistency across datasets, I will arrange according to year and month, and organize so that year and month are the leading columns.
 
@@ -144,6 +144,8 @@ snp = read_csv("data/fivethirtyeight_datasets/snp.csv") %>%
   mutate(month = month.name[as.numeric(month)], year = ifelse(as.numeric(year) > 22,
                             as.numeric(year) + 1900, as.numeric(year) + 2000)) %>%
   select(year, month, close)
+
+print(snp)
 ```
 
 Third, I will tidy the unemployment data so that it can be merged with the previous datasets. This process will involve switching from “wide” to “long” format; ensuring that key variables have the same name; and ensuring that key variables take the same values.
@@ -168,12 +170,20 @@ unemployment_tidy = read_csv("data/fivethirtyeight_datasets/unemployment.csv") %
     January:December,
     names_to = "month", 
     values_to = "unemployment_percentage")
+
+print(unemployment_tidy)
 ```
 
 Join the datasets by merging snp into pols, and merging unemployment into the result.
 
 ```{r}
+pols_snp_merge = left_join(pols, snp)
+print(pols_snp_merge)
+```
 
+```{r}
+final_merge = left_join(pols_snp_merge, unemployment_tidy)
+print(final_merge)
 ```
 
 Write a short paragraph about these datasets. Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).
