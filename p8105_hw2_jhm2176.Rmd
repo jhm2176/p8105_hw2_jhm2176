@@ -88,11 +88,10 @@ First, I will read and clean the Mr. Trash Wheel sheet, adding the variable 'she
 ```{r, warning=FALSE}
 mr_trash = read_excel(
   "data/NEW Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel", range = 
-    "A2:N535") %>% 
+    "A2:N549") %>% 
   janitor::clean_names() %>%
   mutate(sports_balls = as.integer(sports_balls), dumpster = as.double(dumpster), year = as.double(year), class =
-           "mister") %>%
-  drop_na()
+           "mister")
 
 print(mr_trash)
 ```
@@ -103,9 +102,8 @@ prof_trash = read_excel("data/NEW Trash Wheel Collection Data.xlsx",
     sheet = "Professor Trash Wheel", range = "A2:M96") %>% 
   janitor::clean_names() %>%
   mutate(class = "professor") %>%
-  drop_na()
 
-print(prof_trash) #missing values
+print(prof_trash)
 ```
 
 Finally, I will combine the Professor Trash Wheel data with the Mr. Trash Wheel data to produce a single tidy dataset. I will use a full_join since observations in each dataset are distinct:
