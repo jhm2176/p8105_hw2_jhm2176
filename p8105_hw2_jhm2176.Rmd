@@ -84,6 +84,7 @@ transit_data %>%
 ## Problem 2
 
 First, I will read and clean the Mr. Trash Wheel sheet, adding the variable 'sheet' to keep track of data for future combining:
+
 ```{r, warning=FALSE}
 mr_trash = read_excel(
   "data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx", sheet = "Mr. Trash Wheel", range = 
@@ -141,15 +142,15 @@ pols = read_csv("data/fivethirtyeight_datasets/pols-month.csv") %>%
     month = month.name[as.numeric(month)], 
     month = factor(month, levels = month.name),
     year = as.numeric(year),
-    prez_dem = recode(prez_dem, `1` = "dem", `0` = "gop"), 
-    prez_gop = recode(prez_gop, `1` = "gop", `0` = "dem")) %>%
+    prez_dem = recode(prez_dem, `1` = "dem", `0` = "gop", ), 
+    prez_gop = recode(prez_gop, `1` = "gop", `0` = "dem", `2` = "unexpected")) %>%
   pivot_longer(
     cols = starts_with("prez"),
     names_to = NULL,
     values_to = "president") %>%
   distinct()
 
-print(pols) #UPDATE. RETURNS N= 827 INSTEAD OF 822. PIVOT LONGER ERROR.
+print(pols) #RETURNS N= 827 INSTEAD OF N=822 BC OF 5 "2" VALUES. PIVOT LONGER ERROR.
 ```
 
 Second, I will clean the data in snp.csv using a similar process to that above. For consistency across datasets, I will arrange according to year and month, and organize so that year and month are the leading columns.
@@ -207,4 +208,6 @@ final_merge = left_join(pols_snp_merge, unemployment_tidy)
 print(final_merge)
 ```
 
-Write a short paragraph about these datasets. Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).
+**Write a short paragraph about these datasets. Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).**
+
+This homework includes three FiveThirtyEight datasets: pols-month, snp, and unemployment. The "pols-month" data, tidied and renamed here as "pols," contains `r nrow(pols)` observations of `r ncol(pols)` variables related to the number of national politicians who are democratic or republican at any given time. The "snp” data includes `r nrow(snp)` observations of `r ncol(snp)` variables related to Standard & Poor’s stock market index (S&P). The variable close represents the closing values of the S&P stock index on the associated date. The "unemployment" data, tidied and renamed here as "unemployment_tidy," includes `r nrow(unemployment_tidy)` observations of `r ncol(unemployment_tidy)` variables, displaying the percentage of unemployment for each month in each associated year. The resulting data set "final_merge" merges data from all three datasets using two `left_joins()`. This final dataset contains `r nrow(final_merge)` observations of `r ncol(final_merge)` variables. Key variables include year, month, president, close, and unemployment_percentage.
