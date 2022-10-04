@@ -56,7 +56,7 @@ transit_data %>%
 ```
 *The proportion of station entrances / exits without vending that allow entrance is 0.377.*
 
-**How many distinct stations serve the A train? Of the stations that serve the A train, how many are ADA compliant?** To answer this question, I will first reformat the data so that route number and route name are distinct variables:
+**How many distinct stations serve the A train? Of the stations that serve the A train, how many are ADA compliant?** To answer these questions, I will first reformat the data so that route number and route name are distinct variables:
 
 ```{r}
 transit_data %>%
@@ -83,34 +83,52 @@ transit_data %>%
 
 ## Problem 2
 
-Read and clean the Mr. Trash Wheel sheet, adding the variable 'sheet' to keep track of data for future combining:
+First, I will read and clean the Mr. Trash Wheel sheet, adding the variable 'sheet' to keep track of data for future combining:
 ```{r, warning=FALSE}
 mr_trash = read_excel(
   "data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx", sheet = "Mr. Trash Wheel", range = 
     "A2:N535") %>% 
   janitor::clean_names() %>%
-  mutate(sports_balls = as.integer(sports_balls), dumpster = as.double(dumpster), sheet =
+  mutate(sports_balls = as.integer(sports_balls), dumpster = as.double(dumpster), class =
            "mister") %>%
   drop_na()
+
+print(mr_trash)
 ```
 
-Import, clean, and organize the data for Professor Trash Wheel, adding the variable 'sheet' to keep track of data for future combining::
-
+Next, using similiar methods as above, I will import, clean, and organize the data for Professor Trash Wheel, adding the variable 'sheet' to keep track of data for future combining:
 ```{r}
 prof_trash = read_excel("data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx", 
     sheet = "Professor Trash Wheel", range = "A2:N117") %>% 
   janitor::clean_names() %>%
-  mutate(sports_balls = as.integer(sports_balls), sheet = "professor") %>%
+  mutate(sports_balls = as.integer(sports_balls), class = "professor") %>%
   drop_na()
+
+print(prof_trash)
 ```
 
-Combine the Professor Trash Wheel dataset with the Mr. Trash Wheel dataset to produce a single tidy dataset:
+Finally, I will combine the Professor Trash Wheel data with the Mr. Trash Wheel data to produce a single tidy dataset. I will use a full_join since observations in each dataset are distinct:
 
 ```{r}
 trash_tidy = full_join(mr_trash, prof_trash)
+print(trash_tidy)
 ```
 
-Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in the resulting dataset, and give examples of key variables. For available data, what was the total weight of trash collected by Professor Trash Wheel? What was the total number of sports balls collected by Mr. Trash Wheel in 2020?
+**Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in the resulting dataset, and give examples of key variables. For available data, what was the total weight of trash collected by Professor Trash Wheel? What was the total number of sports balls collected by Mr. Trash Wheel in 2020?**
+
+```{r inline, include = FALSE}
+prof_weight_sum = trash_tidy %>% 
+  filter(class == "professor") %>% 
+  pull(weight_tons) %>% 
+  sum
+
+mr_balls_sum = trash_tidy %>% 
+  filter(class == "mister", year == 2020) %>% 
+  pull(sports_balls) %>% 
+  sum
+```
+
+This dataset displays data for dumpsters in Mr. Trash Wheel and Professor Trash Wheel. The resulting dataset includes `r nrow(trash_tidy)` observations and `r ncol(trash_tidy)` columns, including the new column/variable 'class' to distinguish dumpster type. Key variables include date, weight, volume, trash type (plastic bottles: sports balls), and homes powered by the trash once incinerated. According to our data, the total weight of trash collected by Professor Trash Wheel is `r prof_weight_sum` tons. The total number of sports balls collected by Mr. Trash wheel in 2020 is `r mr_balls_sum`.
 
 ## Problem 3
 
@@ -132,7 +150,7 @@ pols = read_csv("data/fivethirtyeight_datasets/pols-month.csv") %>%
     values_to = "president") %>%
   distinct()
 
-print(pols)
+print(pols) #UPDATE. RETURNS N= 827 INSTEAD OF 822. PIVOT LONGER ERROR.
 ```
 
 Second, I will clean the data in snp.csv using a similar process to that above. For consistency across datasets, I will arrange according to year and month, and organize so that year and month are the leading columns.
