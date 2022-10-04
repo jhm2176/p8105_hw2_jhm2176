@@ -143,21 +143,20 @@ First, I will clean the data in pols-month.csv. This code will use `separate()` 
 pols = read_csv("data/fivethirtyeight_datasets/pols-month.csv") %>%
   janitor::clean_names() %>%
   separate(col = mon, into = c("year", "month", "day"), sep = "-") %>%
-  select(-day) %>%
+  select(-day, -prez_dem) %>%
   mutate(
     month = month.name[as.numeric(month)], 
     month = factor(month, levels = month.name),
     year = as.numeric(year),
-    prez_dem = recode(prez_dem, `1` = "dem", `0` = "gop", ), 
-    prez_gop = recode(prez_gop, `1` = "gop", `0` = "dem", `2` = "unexpected")) %>%
+    prez_gop = recode(prez_gop, `1` = "gop", `0` = "dem", `2` = "temp")) %>%
   pivot_longer(
-    cols = starts_with("prez"),
+    cols = prez_gop,
     names_to = NULL,
-    values_to = "president") %>%
-  distinct()
+    values_to = "president")
 
-print(pols) #RETURNS N= 827 INSTEAD OF N=822 BC OF 5 "2" VALUES. PIVOT LONGER ERROR.
+print(pols)
 ```
+**Note:** Original presidential data from August to December 1974 is coded as 2 instead of 0 or 1, likely due to Gerald Ford's temporary presidency in light of Nixon's resignation during this time. For this reason, I recoded values of 2 to "temp" and piped this into my `piivot_longer()` function.
 
 Second, I will clean the data in snp.csv using a similar process to that above. For consistency across datasets, I will arrange according to year and month, and organize so that year and month are the leading columns.
 
