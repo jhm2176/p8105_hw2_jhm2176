@@ -97,6 +97,7 @@ mr_trash =
     "data/NEW Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel", 
     range = "A2:N549") %>%
   janitor::clean_names() %>%
+  drop_na(dumpster) %>%
   mutate(
     sports_balls = as.integer(sports_balls),
     year = as.double(year), 
@@ -110,14 +111,15 @@ prof_trash =
     "data/NEW Trash Wheel Collection Data.xlsx", 
     sheet = "Professor Trash Wheel", range = "A2:M96") %>% 
   janitor::clean_names() %>%
+  drop_na(dumpster) %>%
   mutate(class = "professor")
 ```
 
 Finally, I will combine the Professor Trash Wheel data with the Mr. Trash Wheel data to produce a single tidy dataset. I will use `full_join` because observations in each dataset are distinct, according to their website.
 
 ```{r full join}
-trash_tidy = full_join(mr_trash, prof_trash) %>%
-print(trash_tidy)
+trash_tidy = full_join(mr_trash, prof_trash)
+trash_tidy
 ```
 
 **Description:** The trash_tidy dataset displays data for dumpsters filled by Mr. Trash Wheel and Professor Trash Wheel. The resulting dataset contains `r nrow(trash_tidy)` observations of `r ncol(trash_tidy)` variables, including the new variable *class* to distinguish dumpster type. Key variables include *date, weight, volume*, trash type *(plastic bottles:sports balls)*, and *homes powered* by the trash once incinerated. According to our data, the total weight of trash collected by Professor Trash Wheel is `r {trash_tidy %>% filter(class == "professor") %>% pull(weight_tons) %>% sum}` tons. The total number of sports balls collected by Mr. Trash wheel in 2020 is `r {trash_tidy %>% filter(class == "mister", year == 2020) %>% pull(sports_balls) %>% sum}`.
@@ -140,10 +142,8 @@ pols = read_csv("data/fivethirtyeight_datasets/pols-month.csv") %>%
     cols = prez_gop,
     names_to = NULL,
     values_to = "president")
-
-print(pols)
 ```
-**Note:** Original presidential data from August 1974 to December 1974 is coded as 2 instead of 0 or 1, likely due to Gerald Ford's temporary presidency in light of Nixon's resignation during this time. For this reason, I recoded *prez_gop* values of 2 as "temp", 1 as "gop", 0 as "dem", and piped these into my `piivot_longer` function.
+**Note:** Original presidential data from August 1974 to December 1974 is coded as 2 instead of 0 or 1, likely due to Gerald Ford's temporary presidency in light of Richard Nixon's resignation during this time. For this reason, I recoded *prez_gop* values of 2 as "temp", 1 as "gop", 0 as "dem", and piped these into my `piivot_longer` function.
 
 Second, I will clean the data is snp.csv using a similar process as above. I will save this data as **snp**. For consistency across datasets, I will arrange according to year and month and organize so that year and month are the leading columns.
 
@@ -158,8 +158,6 @@ snp = read_csv("data/fivethirtyeight_datasets/snp.csv") %>%
                   as.numeric(year) + 2000)) %>%
   arrange(year, month) %>%
   select(year, month, close)
-
-print(snp)
 ```
 Third, I will tidy the data in unemployment.csv so that it can be merged with the previous datasets. I will save this data as **unemployment**. This process will involve switching from “wide” to “long” format with `pivot_longer`; ensuring that key variables have the same name with `rename`; and ensuring that key variables take the same values with `mutate`.
 
@@ -184,20 +182,17 @@ unemployment = read_csv("data/fivethirtyeight_datasets/unemployment.csv") %>%
     names_to = "month", 
     values_to = "unemployment_percentage") %>%
   mutate(month = factor(month, levels = month.name))
-
-print(unemployment)
 ```
 
 Finally, I will join the datasets with `left_join` by merging the **snp** dataset into **pols** and merging **unemployment_tidy** into the result.
 
 ```{r}
 pols_snp_merge = left_join(pols, snp)
-print(pols_snp_merge)
 ```
 
 ```{r}
 final_merge = left_join(pols_snp_merge, unemployment)
-print(final_merge)
+final_merge
 ```
 
 **Description:** This homework includes three FiveThirtyEight datasets: pols-month.csv as **pols**, snp.csv as **snp**, and unemployment.csv as **unemployment**. The updated **pols** data contains `r nrow(pols)` observations of `r ncol(pols)` variables related to the number of national politicians who are democratic or republican at any given time. The updated **snp** data includes `r nrow(snp)` observations of `r ncol(snp)` variables related to Standard & Poor’s stock market index (S&P). The variable close represents the closing values of the S&P stock index on the associated date. The updated **unemployment** data includes `r nrow(unemployment)` observations of `r ncol(unemployment)` variables, displaying the percentage of unemployment for each month in each associated year. The resulting data set "final_merge" merges data from all three datasets using two `left_joins`. This final dataset contains `r nrow(final_merge)` observations of `r ncol(final_merge)` variables. Key variables include *year*, *month*, *president*, *close*, and *unemployment_percentage*.
